@@ -1,0 +1,69 @@
+# zookeeper 的版本
+version: "3.3"
+# 参考 : https://zhuanlan.zhihu.com/p/121728783
+# 给zk集群配置网络
+# container services下的每一个子配置都对应一个zk节点的docker container
+services:
+  zk1:
+    # docker container所使用的docker image
+    image: zookeeper
+    hostname: zk1
+    container_name: zk1
+    ports:
+      - "2181:2181"
+      - "8081:8080"
+    # 配置docker container的环境变量
+    environment:
+      # 当前的zk实例的id, 这个id 1~255, 一个集群总共255个节点
+      ZOO_MY_ID: 1
+      # 2181：对client端提供服务的端口
+      # 888：选举leader使用
+      # 2888：集群内机器通讯使用（Leader监听此端口）
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181 server.2=zk2:2888:3888;2181 server.3=zk3:2888:3888;2181
+    # 将docker container上的路径挂载到宿主机上 实现宿主机和docker container的数据共享
+    # 前面的是宿主机的地址, 后面是容器内的地址
+    volumes:
+      - /docker-data/software/zookeeper/zk1/data:/data
+      - /docker-data/software/zookeeper/zk1/datalog:/datalog
+  zk2:
+    # docker container所使用的docker image
+    image: zookeeper
+    hostname: zk2
+    container_name: zk2
+    ports:
+      - "2182:2181"
+      - "8082:8080"
+    # 配置docker container的环境变量
+    environment:
+      # 当前的zk实例的id, 这个id 1~255, 一个集群总共255个节点
+      ZOO_MY_ID: 2
+      # 2181：对client端提供服务的端口
+      # 888：选举leader使用
+      # 2888：集群内机器通讯使用（Leader监听此端口）
+      ZOO_SERVERS: server.1=zk1:2888:3888;2181 server.2=0.0.0.0:2888:3888;2181 server.3=zk3:2888:3888;2181
+    # 将docker container上的路径挂载到宿主机上 实现宿主机和docker container的数据共享
+    # 前面的是宿主机的地址, 后面是容器内的地址
+    volumes:
+      - /docker-data/software/zookeeper/zk2/data:/data
+      - /docker-data/software/zookeeper/zk2/datalog:/datalog
+  zk3:
+    # docker container所使用的docker image
+    image: zookeeper
+    hostname: zk3
+    container_name: zk3
+    ports:
+      - "2183:2181"
+      - "8083:8080"
+    # 配置docker container的环境变量
+    environment:
+      # 当前的zk实例的id, 这个id 1~255, 一个集群总共255个节点
+      ZOO_MY_ID: 3
+      # 2181：对client端提供服务的端口
+      # 888：选举leader使用
+      # 2888：集群内机器通讯使用（Leader监听此端口）
+      ZOO_SERVERS: server.1=zk1:2888:3888;2181 server.2=zk2:2888:3888;2181 server.3=0.0.0.0:2888:3888;2181
+    # 将docker container上的路径挂载到宿主机上 实现宿主机和docker container的数据共享
+    # 前面的是宿主机的地址, 后面是容器内的地址
+    volumes:
+      - /docker-data/software/zookeeper/zk3/data:/data
+      - /docker-data/software/zookeeper/zk3/datalog:/datalog
